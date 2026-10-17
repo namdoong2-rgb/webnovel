@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<title>초등학생의 웹소설 쓰기</title>
+<meta name="theme-color" content="#2E7D6B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0}
+[hidden]{display:none!important}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+/* Layout: 한 줄짜리 공책 — 위에 얇은 제목 띠, 아래로 카드 목록 또는 꽉 찬 원고 화면 */
+:root{
+  --bg:#EEF3F0; --paper:#FFFFFF; --ink:#1F2D2A; --muted:#5D6D68; --line:#D5E0DB;
+  --accent:#2E7D6B; --accent-ink:#FFFFFF; --mark:#FBE29A; --mark-ink:#5A4200; --danger:#B4423A;
+  --c-person:#D2546B; --c-place:#2F8F5B; --c-thing:#C27A0E; --c-rule:#6E56CF; --c-etc:#5B7083;
+  --display:"Jua","Gowun Dodum",system-ui,sans-serif;
+  --body:"Gowun Dodum",system-ui,-apple-system,"Noto Sans KR",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121916; --paper:#1B2420; --ink:#E5EEEA; --muted:#9AABA5; --line:#2C3934;
+  --accent:#6CC4AE; --accent-ink:#0E1A16; --mark:#5C4A12; --mark-ink:#FCE9B0; --danger:#E5867E;
+  --c-person:#F08A9C; --c-place:#6CCB93; --c-thing:#EBB04F; --c-rule:#A996F2; --c-etc:#9DB1C2; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121916; --paper:#1B2420; --ink:#E5EEEA; --muted:#9AABA5; --line:#2C3934;
+  --accent:#6CC4AE; --accent-ink:#0E1A16; --mark:#5C4A12; --mark-ink:#FCE9B0; --danger:#E5867E;
+  --c-person:#F08A9C; --c-place:#6CCB93; --c-thing:#EBB04F; --c-rule:#A996F2; --c-etc:#9DB1C2; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:720px;margin:0 auto;padding-block:12px 40px;display:flex;flex-direction:column;gap:16px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;display:flex;align-items:center;gap:10px}
+header h1{font-family:var(--display);font-weight:400;font-size:24px;margin:0;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:10px 16px;background:var(--paper);color:var(--ink);border:1px solid var(--line)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-family:var(--display);font-size:18px}
+button.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+button.danger{color:var(--danger)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.back{font-size:22px;padding:6px 12px;line-height:1}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;text-align:left;width:100%}
+.item .t{font-family:var(--display);font-size:20px}
+.item .m{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;font-size:12px;background:var(--mark);color:var(--mark-ink);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:2px;font-family:var(--body)}
+.empty{color:var(--muted);text-align:center;padding:28px 8px;border:2px dashed var(--line);border-radius:14px}
+.tabs{display:flex;gap:6px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:4px}
+.tabs button{flex:1;border:0;background:transparent;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);font-family:var(--display)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input[type=text],textarea{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;box-sizing:border-box}
+label{font-size:14px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.titlein{font-family:var(--display);font-size:22px}
+.editor{min-height:55vh;resize:vertical;line-height:1.9;font-size:18px;
+  background-image:linear-gradient(transparent calc(1.9em - 1px),var(--line) calc(1.9em - 1px));background-size:100% 1.9em;background-attachment:local;padding-top:2px}
+.bar{position:sticky;bottom:0;background:var(--bg);padding-block:10px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line)}
+.count{flex:1;min-width:0;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+.saved{font-size:13px;color:var(--muted)}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.panel h2{font-family:var(--display);font-weight:400;font-size:20px;margin:0}
+.fix{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.fix:first-of-type{border-top:0;padding-top:0}
+.fix .w{font-size:18px}
+.fix mark{background:var(--mark);color:var(--mark-ink);padding:0 4px;border-radius:4px}
+.fix .why{color:var(--muted);font-size:15px}
+.fix .ctx{font-size:14px;color:var(--muted);word-break:keep-all}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:6px 12px;border-radius:999px;font-size:15px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+[data-ty="인물"]{--tc:var(--c-person)} [data-ty="장소"]{--tc:var(--c-place)} [data-ty="물건"]{--tc:var(--c-thing)} [data-ty="규칙"]{--tc:var(--c-rule)} [data-ty="기타"]{--tc:var(--c-etc)}
+.tg{background:color-mix(in srgb,var(--tc,var(--muted)) 16%,transparent);border:1px solid color-mix(in srgb,var(--tc,var(--muted)) 55%,transparent);color:var(--tc,var(--muted));font-weight:700}
+.chip[data-ty]{border-color:color-mix(in srgb,var(--tc) 55%,transparent);color:var(--tc)}
+.chip[data-ty][aria-pressed="true"]{background:var(--tc);border-color:var(--tc);color:var(--paper)}
+.item[data-ty]{border-left:6px solid var(--tc)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--tc);margin-right:6px;vertical-align:1px}
+.typegrid button[data-ty]{border-color:color-mix(in srgb,var(--tc) 55%,transparent)}
+.typegrid button[data-ty] b{color:var(--tc)}
+.typegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.typegrid button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;min-width:0}
+.typegrid small{color:var(--muted);font-size:13px}
+textarea[data-field]{resize:vertical}
+.warn{background:var(--mark);color:var(--mark-ink);border-radius:12px;padding:10px 14px;font-size:15px}
+.modal{position:fixed;inset:0;background:rgb(0 0 0 / .4);display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}
+.modal .box{background:var(--paper);color:var(--ink);border-radius:16px;padding:20px;max-width:360px;width:100%;display:flex;flex-direction:column;gap:14px}
+.modal .box p{margin:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="modal" id="modal" hidden><div class="box"><p id="mtext"></p><div class="row" style="justify-content:flex-end"><button id="mno">아니요</button><button id="myes" class="primary">지울게요</button></div></div></div>
+
+<script>
+const KEY="geulsseugi.v2";
+let db={works:[]}, storageOK=true, view={name:"home"}, saveTimer=null;
+
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function load(){
+  try{const raw=localStorage.getItem(KEY); if(raw){db=JSON.parse(raw);return}}catch(e){storageOK=false}
+  db={works:[sample()]};
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(db));storageOK=true}catch(e){storageOK=false}}
+function sample(){
+  const now=Date.now();
+  return {id:uid(),title:"구름 위의 고양이",example:true,created:now,updated:now,
+    chapters:[{id:uid(),title:"1화. 이상한 우산",updated:now,
+      body:"내 이름은 하루. 아침에 일어났는데 창밖이 이상했다. 하늘에 커다란 구름이 금새 내려와 있었다.\n\"어떻해, 학교 늦겠다!\"\n나는 노란 우산을 들고 뛰어나갔다. 그런데 우산이 둥실 떠올랐다. 왠지 무서웠지만 놓지 않았다.\n\"내가 꼭 잡고 있을께.\"\n도착한 곳은 구름 마을이었다. 하얀 고양이 솜이가 말했다. \"드디어 왔구나. 너를 몇일이나 기다렸어.\""}],
+    cards:[
+      {id:uid(),type:"인물",name:"솜이",f:{personality:"차분하고 수수께끼 같음",look:"하얀 털, 파란 눈",like:"햇볕 쬐기",secret:"원래는 사람이었다"}},
+      {id:uid(),type:"인물",name:"하루",f:{personality:"겁이 많지만 궁금한 건 못 참음",look:"노란 우산을 항상 들고 다님",like:"",secret:""}},
+      {id:uid(),type:"장소",name:"구름 마을",f:{desc:"하늘 위에 떠 있는 커다란 구름 마을",mood:"조용하고 폭신함",who:"말하는 동물들"}},
+      {id:uid(),type:"물건",name:"노란 우산",f:{look:"노란색, 손잡이에 별 그림",power:"펼치면 하늘로 떠오름",owner:"하루"}},
+      {id:uid(),type:"규칙",name:"구름 위의 규칙",f:{rule:"구름 위에서는 동물이 말을 할 수 있다",break:"구름에서 내려가면 다시 말을 못 한다"}}]};
+}
+const TYPES={
+  "인물":{fields:[["personality","성격"],["look","생김새"],["like","좋아하는 것"],["secret","비밀 (나만 아는 것)"]]},
+  "장소":{fields:[["desc","어떤 곳인지"],["mood","분위기"],["who","누가 있는지"]]},
+  "물건":{fields:[["look","생김새"],["power","할 수 있는 일"],["owner","주인"]]},
+  "규칙":{label:"세계 규칙",hint:"이 이야기 세계에서만 통하는 법칙",fields:[["rule","이 세계에서는…"],["break","규칙을 어기면"]]},
+  "기타":{hint:"팀, 가족, 사건, 아이디어 등",fields:[["note","내용"]]}
+};
+const tlabel=t=>TYPES[t]?.label||t;
+function migrate(){
+  for(const w of db.works){
+    if(!w.cards){w.cards=(w.chars||[]).map(c=>({id:c.id,type:"인물",name:c.name,f:{personality:c.personality||"",look:c.trait||"",like:"",secret:""}}))}
+    delete w.chars;
+    for(const c of w.cards){
+      if(c.type==="메모") c.type="기타";
+      if(c.type==="무리"){c.type="기타";c.f={note:[c.f.members&&("속한 사람: "+c.f.members),c.f.goal&&("하려는 일: "+c.f.goal)].filter(Boolean).join("\n")}}
+      if(!TYPES[c.type]) c.type="기타";
+    }
+  }
+}
+function appears(w,card){
+  const n=(card.name||"").trim(); if(!n) return [];
+  return w.chapters.map((c,i)=>c.body.includes(n)?(c.title||`${i+1}화`):null).filter(Boolean);
+}
+function fmtDate(t){const d=new Date(t);return `${d.getMonth()+1}월 ${d.getDate()}일`}
+function lenAll(s){return [...s.replace(/\n/g,"")].length}
+function lenNoSpace(s){return [...s.replace(/\s/g,"")].length}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+const $=s=>document.querySelector(s);
+const work=()=>db.works.find(w=>w.id===view.workId);
+const chap=()=>work()?.chapters.find(c=>c.id===view.chapId);
+
+/* ---------- 맞춤법 규칙 ---------- */
+const DOE="'되'와 '돼'가 헷갈리면 '하'와 '해'를 넣어 보세요. '해'가 자연스러우면 '돼', '하'가 자연스러우면 '되'예요.";
+const RULES=[
+ {re:/됬/g,to:()=>"됐",why:"'되었'을 줄이면 '됐'이에요. '됬'이라는 글자는 없어요."},
+ {re:/되요/g,to:()=>"돼요",why:DOE},
+ {re:/되서/g,to:()=>"돼서",why:DOE},
+ {re:/되야/g,to:()=>"돼야",why:DOE},
+ {re:/(할|갈|줄|볼|올|될|살|놀|잘|쓸|탈|을)께/g,to:m=>m.slice(0,-1)+"게",why:"'-ㄹ게'는 [께]로 소리 나도 '게'로 써요. (할게, 갈게, 먹을게)"},
+ {re:/(할|갈|줄|볼|올|될|살|놀|잘|쓸|을)꺼/g,to:m=>m.slice(0,-1)+" 거",why:"'것'을 줄인 말은 '거'예요. 앞말과 띄어 써요. (할 거야)"},
+ {re:/(내|니|너)꺼/g,to:m=>m[0]+" 거",why:"'것'을 줄인 말은 '거'예요. (내 거, 네 거)"},
+ {re:/웬지/g,to:()=>"왠지",why:"'왜인지'를 줄인 말이라 '왠지'예요."},
+ {re:/왠(일|만)/g,to:m=>"웬"+m.slice(1),why:"'왠지'만 '왠'이고, 나머지는 거의 다 '웬'이에요. (웬일, 웬만큼)"},
+ {re:/금새/g,to:()=>"금세",why:"'금시에'를 줄인 말이라 '금세'예요."},
+ {re:/어떻해/g,to:()=>"어떡해",why:"'어떻게 해'를 줄이면 '어떡해'예요."},
+ {re:/몇일/g,to:()=>"며칠",why:"'몇 일'이 아니라 '며칠'로 써요."},
+ {re:/오랫만/g,to:()=>"오랜만",why:"'오래간만'을 줄인 말이라 '오랜만'이에요."},
+ {re:/설겆이/g,to:()=>"설거지",why:"표준어는 '설거지'예요."},
+ {re:/역활/g,to:()=>"역할",why:"'역할'이 맞아요."},
+ {re:/희안/g,to:()=>"희한",why:"'희한하다'가 맞아요."},
+ {re:/구지/g,to:()=>"굳이",why:"'굳이'로 쓰고 [구지]로 읽어요."},
+ {re:/(깨끗|곰곰|일일|틈틈|따뜻|가까)히/g,to:m=>m.slice(0,-1)+"이",why:"이 말은 '-히'가 아니라 '-이'로 끝나요. (깨끗이, 곰곰이)"},
+ {re:/솔직이/g,to:()=>"솔직히",why:"'솔직히'가 맞아요."},
+ {re:/않(하|해|했|돼|되|가|와|먹|갔|왔|자|잤)/g,to:m=>"안 "+m.slice(1),why:"동작 앞에는 '안', '-지' 뒤에는 '않'을 써요. (안 해 / 하지 않아)"},
+ {re:/지 ?안(아|았|고|는다|을|은|기)/g,to:m=>m.replace("안","않"),why:"'-지' 뒤에는 '않'을 써요. (하지 않아) 단, '안다(품다)'라는 뜻이면 그대로 두세요.",maybe:true},
+ {re:/뵈요/g,to:()=>"봬요",why:"'뵈어요'를 줄이면 '봬요'예요."},
+ {re:/찌게/g,to:()=>"찌개",why:"'찌개'가 맞아요."},
+ {re:/어의(없|가 없)/g,to:m=>m.replace("어의","어이"),why:"'어이없다'가 맞아요."},
+ {re:/(있|없|했|겠)슴/g,to:m=>m[0]+"음",why:"'-슴'이 아니라 '-음'으로 써요. (있음, 없음)"},
+ {re:/(할|갈|볼|올|먹을|잘)려고/g,to:m=>({"할":"하","갈":"가","볼":"보","올":"오","먹을":"먹으","잘":"자"}[m.slice(0,-2)])+"려고",why:"'-ㄹ려고'가 아니라 '-려고'로 써요. (하려고, 가려고)"},
+ {re:/설레이/g,to:()=>"설레",why:"'설레다'가 기본형이라 '설레어', '설렘'으로 써요."},
+ {re:/눈쌀/g,to:()=>"눈살",why:"'눈살'이 맞아요."},
+ {re:/움추리|움추려/g,to:m=>m.replace("추","츠"),why:"'움츠리다'가 맞아요."},
+ {re:/가르키|가르켜/g,to:m=>m.replace("가르","가리"),why:"손가락으로 방향을 보일 때는 '가리키다', 공부를 알려줄 때는 '가르치다'예요.",maybe:true},
+ {re:/일부로/g,to:()=>"일부러",why:"'일부러(고의로)'라는 뜻이면 '일부러'로 써요. '전체의 일부로'라는 뜻이면 그대로 두세요.",maybe:true},
+];
+function check(text){
+  const out=[];
+  for(const r of RULES){r.re.lastIndex=0;let m;
+    while((m=r.re.exec(text))){out.push({i:m.index,from:m[0],to:r.to(m[0]),why:r.why,maybe:!!r.maybe})}}
+  return out.sort((a,b)=>a.i-b.i);
+}
+
+/* ---------- 화면 ---------- */
+function go(v,push=true){view=v;if(push){try{history.pushState(v,"")}catch(e){}}render();window.scrollTo(0,0)}
+window.addEventListener("popstate",e=>{view=e.state||{name:"home"};render()});
+
+function render(){
+  const app=$("#app");
+  const warn=storageOK?"":`<div class="warn">글이 핸드폰에 저장되지 않고 있어요. 크롬의 시크릿 모드가 아닌지 확인해 주세요.</div>`;
+  if(view.name==="home") app.innerHTML=homeHTML(warn);
+  else if(view.name==="work"&&work()) app.innerHTML=workHTML(warn);
+  else if(view.name==="write"&&chap()) app.innerHTML=writeHTML(warn);
+  else if(view.name==="card"&&work()&&work().cards.find(c=>c.id===view.cardId)) app.innerHTML=cardHTML(warn);
+  else {view={name:"home"};app.innerHTML=homeHTML(warn)}
+  bind();
+}
+function homeHTML(warn){
+  const items=db.works.slice().sort((a,b)=>b.updated-a.updated).map(w=>{
+    const total=w.chapters.reduce((s,c)=>s+lenNoSpace(c.body),0);
+    return `<button class="item" data-open="${w.id}"><span class="t">${esc(w.title||"제목 없는 작품")}${w.example?'<span class="tag">예시</span>':""}</span>
+      <span class="m">${w.chapters.length}화 · ${total.toLocaleString()}자 · ${fmtDate(w.updated)}</span></button>`}).join("");
+  return `<header><h1>초등학생의 웹소설 쓰기</h1></header>${warn}
+    <button class="primary" id="newWork">+ 새 작품 쓰기</button>
+    <div class="list">${items||'<div class="empty">아직 작품이 없어요.<br>위의 버튼을 눌러 첫 이야기를 시작해 보세요.</div>'}</div>
+    <p class="saved" style="text-align:center">여기에 쓴 글은 이 핸드폰에만 저장돼요. 다른 사람은 볼 수 없어요.</p>`;
+}
+function workHTML(warn){
+  const w=work(), tab=view.tab||"chap";
+  const chaps=w.chapters.map((c,i)=>`<button class="item" data-chap="${c.id}"><span class="t">${esc(c.title||`${i+1}화`)}</span>
+     <span class="m">${lenNoSpace(c.body).toLocaleString()}자 · ${fmtDate(c.updated)}</span></button>`).join("");
+  const filt=TYPES[view.filter]?view.filter:"인물";
+  const chips=Object.keys(TYPES).map(t=>`<button class="chip" data-ty="${t}" data-filter="${t}" aria-pressed="${filt===t}">${esc(tlabel(t))} ${w.cards.filter(c=>c.type===t).length}</button>`).join("");
+  const cards=w.cards.filter(c=>c.type===filt).map(c=>{
+    const ap=appears(w,c); const first=TYPES[c.type]?.fields.map(([k])=>c.f[k]).find(v=>v&&v.trim());
+    return `<button class="item" data-ty="${c.type}" data-card="${c.id}"><span class="t">${esc(c.name||"이름 없음")}<span class="tag tg">${esc(tlabel(c.type))}</span></span>
+      ${first?`<span class="m" style="color:var(--ink)">${esc(first)}</span>`:""}
+      <span class="m">${ap.length?`나온 곳: ${esc(ap.join(", "))}`:"아직 글에 안 나왔어요"}</span></button>`}).join("");
+  const picker=view.picking?`<div class="panel"><h2>어떤 설정을 만들까요?</h2><div class="typegrid">${Object.keys(TYPES).map(t=>`<button data-ty="${t}" data-newcard="${t}"><b>${esc(tlabel(t))}</b>${TYPES[t].hint?`<small>${esc(TYPES[t].hint)}</small>`:""}</button>`).join("")}</div><div class="row"><button id="cancelPick">취소</button></div></div>`:"";
+  return `<header><button class="back" id="back" aria-label="뒤로">←</button><h1>${esc(w.title||"제목 없는 작품")}</h1></header>${warn}
+    <label>작품 제목<input type="text" class="titlein" id="wtitle" value="${esc(w.title)}" placeholder="제목을 지어 주세요"></label>
+    <div class="tabs" role="tablist"><button role="tab" data-tab="chap" aria-selected="${tab==="chap"}">회차</button><button role="tab" data-tab="set" aria-selected="${tab==="set"}">설정집</button></div>
+    ${tab==="chap"
+      ? `<button class="primary" id="newChap">+ 새 회차</button><div class="list">${chaps||'<div class="empty">첫 회차를 만들어 보세요.</div>'}</div>`
+      : `${picker||'<button class="primary" id="pickCard">+ 설정 추가</button>'}
+         <div class="chips">${chips}</div>
+         <div class="list">${cards||`<div class="empty">아직 ${esc(tlabel(filt))} 설정이 없어요.<br>위의 버튼으로 추가해 보세요.</div>`}</div>`}
+    <button class="ghost danger" id="delWork">이 작품 지우기</button>`;
+}
+function cardHTML(warn){
+  const w=work(), c=w.cards.find(x=>x.id===view.cardId), T=TYPES[c.type]||TYPES["기타"], ap=appears(w,c);
+  return `<header><button class="back" id="back" aria-label="뒤로">←</button><h1>${esc(c.name||"새 설정")}</h1><span class="saved" id="saved">저장됨</span></header>${warn}
+    <div class="chips">${Object.keys(TYPES).map(t=>`<button class="chip" data-ty="${t}" data-settype="${t}" aria-pressed="${c.type===t}">${esc(tlabel(t))}</button>`).join("")}</div>
+    <label>이름<input type="text" class="titlein" id="cardname" value="${esc(c.name)}" placeholder="글에 쓰는 이름 그대로 적어 주세요"></label>
+    ${T.fields.map(([k,l])=>`<label>${esc(l)}<textarea id="f-${k}" data-field="${k}" rows="2" spellcheck="true" lang="ko">${esc(c.f[k]||"")}</textarea></label>`).join("")}
+    <div class="panel"><span class="m" style="color:var(--muted)">${ap.length?`이 이름이 나온 회차: <b style="color:var(--ink)">${esc(ap.join(", "))}</b>`:"아직 글에 이 이름이 나오지 않았어요."}</span></div>
+    <button class="ghost danger" id="delCard">이 설정 지우기</button>`;
+}
+function setPanelHTML(){
+  const w=work(), body=chap().body;
+  const here=w.cards.filter(c=>c.name&&body.includes(c.name.trim())), rest=w.cards.filter(c=>!here.includes(c));
+  const one=c=>`<div class="fix"><div class="w" data-ty="${c.type}"><span class="dot"></span><b>${esc(c.name||"이름 없음")}</b><span class="tag tg">${esc(tlabel(c.type))}</span></div>
+     ${(TYPES[c.type]?.fields||[]).filter(([k])=>c.f[k]&&c.f[k].trim()).map(([k,l])=>`<div class="why">${esc(l)}: ${esc(c.f[k])}</div>`).join("")}</div>`;
+  if(!w.cards.length) return `<div class="panel"><h2>설정집</h2><p style="margin:0">아직 설정이 없어요. 작품 화면의 '설정집'에서 만들 수 있어요.</p><div class="row"><button id="closeSet">닫기</button></div></div>`;
+  return `<div class="panel"><h2>이 회차에 나온 설정 ${here.length}개</h2>${here.map(one).join("")||'<p style="margin:0;color:var(--muted)">아직 없어요.</p>'}
+    ${rest.length?`<h2 style="margin-top:6px">다른 설정</h2>${rest.map(one).join("")}`:""}<div class="row"><button id="closeSet">닫기</button></div></div>`;
+}
+function writeHTML(warn){
+  const c=chap();
+  return `<header><button class="back" id="back" aria-label="뒤로">←</button><h1>${esc(work().title||"제목 없는 작품")}</h1><span class="saved" id="saved">저장됨</span></header>${warn}
+    <input type="text" class="titlein" id="ctitle" value="${esc(c.title)}" placeholder="회차 제목">
+    <textarea class="editor" id="body" spellcheck="true" lang="ko" placeholder="여기에 이야기를 써 보세요.">${esc(c.body)}</textarea>
+    <div id="setArea"></div>
+    <div id="checkArea"></div>
+    <div class="bar"><span class="count" id="count"></span><button id="doSet">설정 보기</button><button class="primary" id="doCheck">맞춤법 점검</button></div>
+    <button class="ghost danger" id="delChap">이 회차 지우기</button>`;
+}
+function countText(s){
+  const a=lenAll(s),n=lenNoSpace(s),sheets=a/200;
+  return `${n.toLocaleString()}자 (띄어쓰기 포함 ${a.toLocaleString()}자) · 원고지 약 ${sheets<1&&a>0?"1":Math.round(sheets*10)/10}장`;
+}
+function touch(){const w=work();if(w){w.updated=Date.now();w.example=false}}
+function scheduleSave(){
+  const s=$("#saved"); if(s) s.textContent="저장 중…";
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{save();const s2=$("#saved");if(s2)s2.textContent=storageOK?"저장됨":"저장 안 됨"},400);
+}
+function ask(text,yes){
+  $("#mtext").textContent=text; $("#modal").hidden=false; $("#myes").focus();
+  $("#myes").onclick=()=>{$("#modal").hidden=true;yes()};
+  $("#mno").onclick=()=>{$("#modal").hidden=true};
+}
+function showCheck(){
+  const ta=$("#body"), list=check(ta.value), area=$("#checkArea");
+  if(!list.length){area.innerHTML=`<div class="panel"><h2>점검 결과</h2><p style="margin:0">자주 틀리는 맞춤법은 보이지 않아요. 키보드의 빨간 밑줄도 한번 살펴보세요.</p><div class="row"><button id="closeCheck">닫기</button></div></div>`;}
+  else area.innerHTML=`<div class="panel"><h2>점검 결과 ${list.length}개</h2>${list.map((f,k)=>{
+    const s=Math.max(0,f.i-10), ctx=ta.value.slice(s,f.i)+"["+f.from+"]"+ta.value.slice(f.i+f.from.length,f.i+f.from.length+10);
+    return `<div class="fix"><div class="w"><mark>${esc(f.from)}</mark> → <b>${esc(f.to)}</b>${f.maybe?' <span class="tag">확인해 보기</span>':""}</div>
+      <div class="ctx">…${esc(ctx.replace(/\n/g," "))}…</div><div class="why">${esc(f.why)}</div>
+      <div class="row"><button data-goto="${k}">글에서 찾기</button><button data-fixit="${k}" class="primary" style="font-size:16px">바꾸기</button></div></div>`}).join("")}
+    <div class="row"><button id="closeCheck">닫기</button></div></div>`;
+  area._list=list;
+  area.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function bind(){
+  const on=(sel,ev,fn)=>document.querySelectorAll(sel).forEach(el=>el.addEventListener(ev,fn));
+  on("#back","click",()=>history.length>1?history.back():go({name:"home"}));
+  on("#newWork","click",()=>{const now=Date.now();const w={id:uid(),title:"",created:now,updated:now,chapters:[],cards:[]};db.works.push(w);save();go({name:"work",workId:w.id})});
+  on("[data-open]","click",e=>go({name:"work",workId:e.currentTarget.dataset.open}));
+  on("[data-tab]","click",e=>{view.tab=e.currentTarget.dataset.tab;try{history.replaceState(view,"")}catch(_){}render()});
+  on("#wtitle","input",e=>{work().title=e.target.value;touch();$("header h1").textContent=e.target.value||"제목 없는 작품";scheduleSave()});
+  on("#newChap","click",()=>{const w=work(),c={id:uid(),title:`${w.chapters.length+1}화`,body:"",updated:Date.now()};w.chapters.push(c);touch();save();go({name:"write",workId:w.id,chapId:c.id})});
+  on("[data-chap]","click",e=>go({name:"write",workId:view.workId,chapId:e.currentTarget.dataset.chap}));
+  on("#pickCard","click",()=>{view.picking=true;render()});
+  on("#cancelPick","click",()=>{view.picking=false;render()});
+  on("[data-newcard]","click",e=>{const t=e.currentTarget.dataset.newcard,c={id:uid(),type:t,name:"",f:{}};work().cards.push(c);touch();save();view.picking=false;view.filter=t;try{history.replaceState(view,"")}catch(_){}go({name:"card",workId:view.workId,cardId:c.id})});
+  on("[data-filter]","click",e=>{view.filter=e.currentTarget.dataset.filter;try{history.replaceState(view,"")}catch(_){}render()});
+  on("[data-card]","click",e=>go({name:"card",workId:view.workId,cardId:e.currentTarget.dataset.card}));
+  const card=()=>work()?.cards.find(c=>c.id===view.cardId);
+  on("[data-settype]","click",e=>{card().type=e.currentTarget.dataset.settype;touch();save();render()});
+  on("#cardname","input",e=>{card().name=e.target.value;touch();$("header h1").textContent=e.target.value||"새 설정";scheduleSave()});
+  on("[data-field]","input",e=>{card().f[e.target.dataset.field]=e.target.value;touch();scheduleSave()});
+  on("#delCard","click",()=>ask("이 설정을 지울까요?",()=>{const w=work();w.cards=w.cards.filter(c=>c.id!==view.cardId);touch();save();history.length>1?history.back():go({name:"work",workId:w.id,tab:"set"})}));
+  on("#delWork","click",()=>ask("이 작품을 통째로 지울까요? 지운 글은 되돌릴 수 없어요.",()=>{db.works=db.works.filter(w=>w.id!==view.workId);save();go({name:"home"})}));
+  on("#delChap","click",()=>ask("이 회차를 지울까요? 지운 글은 되돌릴 수 없어요.",()=>{const w=work();w.chapters=w.chapters.filter(c=>c.id!==view.chapId);touch();save();history.length>1?history.back():go({name:"work",workId:w.id})}));
+  const ta=$("#body");
+  if(ta){
+    const upd=()=>{$("#count").textContent=countText(ta.value)}; upd();
+    ta.addEventListener("input",()=>{const c=chap();c.body=ta.value;c.updated=Date.now();touch();upd();scheduleSave()});
+    $("#ctitle").addEventListener("input",e=>{chap().title=e.target.value;chap().updated=Date.now();touch();scheduleSave()});
+    $("#doCheck").addEventListener("click",showCheck);
+    $("#doSet").addEventListener("click",()=>{const a=$("#setArea");if(a.innerHTML){a.innerHTML="";return}a.innerHTML=setPanelHTML();a.scrollIntoView({behavior:"smooth",block:"start"})});
+    $("#setArea").addEventListener("click",e=>{if(e.target.id==="closeSet")$("#setArea").innerHTML=""});
+    $("#checkArea").addEventListener("click",e=>{
+      const area=$("#checkArea"), b=e.target.closest("button"); if(!b) return;
+      if(b.id==="closeCheck"){area.innerHTML="";return}
+      const f=area._list?.[+(b.dataset.goto??b.dataset.fixit)]; if(!f) return;
+      if(ta.value.substr(f.i,f.from.length)!==f.from){showCheck();return}
+      if(b.dataset.goto!==undefined){ta.focus();ta.setSelectionRange(f.i,f.i+f.from.length);return}
+      ta.value=ta.value.slice(0,f.i)+f.to+ta.value.slice(f.i+f.from.length);
+      ta.dispatchEvent(new Event("input"));showCheck();
+    });
+  }
+}
+load();
+migrate();
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+try{history.replaceState(view,"")}catch(e){}
+render();
+</script>
+
+<script>
+if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})})}
+</script>
+</body>
+</html>
